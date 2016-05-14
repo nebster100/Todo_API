@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');//Underscore package is commonly called this
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -31,21 +32,32 @@ app.get('/todos', function (req, res){
 	res.json(todos);
 });
 app.get('/todos/:id', function (req, res){
-	var index = req.params.id-1;
-	if(index >= 0 && index < todos.length)
-		res.json(todos[index]);
+	var index = parseInt(req.params.id);
+	var foundTodo = _.findWhere(todos, {id: index});
+	if(foundTodo)
+		res.json(foundTodo);
 	else
 		res.status(404).send();
 });
 
 // POST /todos
 app.post('/todos', function (req, res) {
-	var body = req.body;
+	//Whitelisting keys
+	var body = _.pick(req.body, 'description', 'completed');
+
+	//Validation
+	if(!_.isBoolean(body.completed) || 
+	   !_.isString(body.description) ||
+	   body.description.trim().length === 0)
+		return res.status(400).send();
+
+	//Cleanup and adding an ID
+	body.description = body.description.trim();
 	body.id = todoNextID;
 	todoNextID++;
+
 	todos.push(body);
 	res.json(body);
-
 });
 
 
