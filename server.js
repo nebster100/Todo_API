@@ -32,7 +32,7 @@ app.get('/todos', function (req, res){
 });
 app.get('/todos/:id', function (req, res){
 	var index = req.params.id-1;
-	if(index >= 0 && index <= todos.length)
+	if(index >= 0 && index < todos.length)
 		res.json(todos[index]);
 	else
 		res.status(404).send();
