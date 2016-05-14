@@ -39,8 +39,13 @@ app.get('/todos', function (req, res){
 	else if(queries.hasOwnProperty('completed') && queries.completed === 'false')
 		filteredTodos = _.where(filteredTodos, {completed: false});
 
-	if(queries.hasOwnProperty('description'))
-		filteredTodos = _.where(filteredTodos, {description: queries.description});
+	if(queries.hasOwnProperty('description')){
+		filteredTodos = _.filter(filteredTodos, function(todo){
+			var desc = todo.description;
+			console.log(queries.description);
+			return desc.includes(queries.description);
+		});
+	}
 
 	res.json(filteredTodos);
 });
