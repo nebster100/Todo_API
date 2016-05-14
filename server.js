@@ -28,9 +28,24 @@ var todos = [{
 app.get('/', function (req, res){
 	res.send('Todo API Root');
 });
+
+
 app.get('/todos', function (req, res){
-	res.json(todos);
+	var queries = req.query;
+	var filteredTodos = todos;
+
+	if(queries.hasOwnProperty('completed') && queries.completed === 'true')
+		filteredTodos = _.where(filteredTodos, {completed: true});
+	else if(queries.hasOwnProperty('completed') && queries.completed === 'false')
+		filteredTodos = _.where(filteredTodos, {completed: false});
+
+	if(queries.hasOwnProperty('description'))
+		filteredTodos = _.where(filteredTodos, {description: queries.description});
+
+	res.json(filteredTodos);
 });
+
+
 app.get('/todos/:id', function (req, res){
 	var index = parseInt(req.params.id);
 	var foundTodo = _.findWhere(todos, {id: index});
@@ -71,6 +86,39 @@ app.delete('/todos/:id', function (req, res){
 	}
 	else
 		res.status(404).json({"error": "no toDO found with that id"});
+});
+
+//PUT
+app.put('/todos/:id', function (req, res){
+	var index = parseInt(req.params.id);
+	var foundTodo = _.findWhere(todos, {id: index});
+	var body = _.pick(req.body, 'description', 'completed');
+	var newTodo = {};
+
+	if(!foundTodo)
+		return res.status(404).json({"error": "no toDO found with that id"});
+	
+	if(body.hasOwnProperty('completed') &&
+		_.isBoolean(body.completed)){
+		newTodo.completed = body.completed;
+	}
+	else if(body.hasOwnProperty('completed'))
+		return res.status(400).send();
+	
+
+	if(body.hasOwnProperty('description')&&
+		_.isString(body.description) &&
+	 	body.description.trim().length > 0){
+		
+		newTodo.description = body.description;
+
+	}
+	else if(body.hasOwnProperty('description'))	
+		return res.status(400).send();
+
+	_.extend(foundTodo, newTodo);
+
+	res.json(newTodo);
 });
 
 
