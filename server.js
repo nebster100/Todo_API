@@ -46,15 +46,18 @@ app.get('/todos', function(req, res) {
 
 app.get('/todos/:id', function(req, res) {
 	var index = parseInt(req.params.id);
-	var foundTodo = _.findWhere(todos, {
-		id: index
+	
+
+	db.toDo.findById(index).then(function(todo){
+		if(todo){
+			res.json(todo.toJSON());
+		}
+		else
+			res.status(404).send();
+	}, function (e){
+		res.status(500).json(e);
 	});
-	if (foundTodo)
-		res.json(foundTodo);
-	else
-		res.status(404).json({
-			"error": "no toDO found with that id"
-		});
+
 });
 
 // POST /todos
