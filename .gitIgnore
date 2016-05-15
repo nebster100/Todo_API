@@ -1,1 +1,3 @@
 node_modules/
+Playground/
+data/*.sqlite
